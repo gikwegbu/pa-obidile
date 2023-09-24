@@ -1,23 +1,26 @@
 <template>
-    <div class="q-pa-md example-row-mix-and-match scroll">
-        <div class="row q-gutter-lg">
-            <div class="col col-md-2" :class="$q.screen.lt.md ? 'hidden': ''"></div>
+    <div class="q-pa-md scroll">
+        <div class="row flex justify-center q-gutter-lg">
             <div class="col-12 col-md-6">
-                <div>
+                <!-- <div>
                     If I had a flower for every moment I think about you, I could walk forever in my garden. Let the memory of Jummai be with us forever.
                 </div>
 
                 <p>
                     With heavy hearts, we submit to God's will as we announce the death of our beloved Mother, Sister, Cousin, and Aunty, Mrs Jummai Matta which occurred on the 24th of May 2023. We are grateful for the time spent with her and we will remember her forever. 
                 </p>
-
                 <p>
                     <ul>
                         <li>Born 07/11/1960</li>
                         <li>Aged 62</li>
                     </ul>
-                </p>
-                <div>
+                </p> -->
+                    <!-- About Section... -->
+                    <div class="q-mb-lg" v-html="about_section.about_text" v-if="about_section.about_text"></div>
+                    <TextSkeleton  v-else/>
+                <!-- {{ editor }} -->
+                <div class="q-mt-lg" v-html="about_section.programme_of_events"></div>
+                <!-- <div>
                     <div class="text-h4 text-bold text-underline q-py-md"> PROGRAMME OF EVENTS </div>
                     <div class="text-h6 "> SERVICE OF SONGS</div>
                     <div>Date: Wednesday 7th June 2023 </div>
@@ -47,35 +50,31 @@
                     <div>Time: Immediately after internment </div>
                     <div>Venue: Centre La Sharp, Rayfield </div>
                     <div>Jos, Plateau State </div>
-                </div>
+                </div> -->
             </div>
-
             <div class="col-12 col-md-3">
                 <Carousel />
             </div>
-            <div class="col-2 col-md-2" :class="$q.screen.lt.md ? 'hidden': ''"></div>
-        </div>
-        
-        <div class="row q-gutter-lg bgImage q-mt-lg text-h6">
-            <div class="col col-md-2" :class="$q.screen.lt.md ? 'hidden': ''"></div>
-            <div class="col-12 col-md-6">
-                <!-- Put a background attachement here too -->
-                <div class="q-py-xl">
-                    <p>We would like to sincerely appreciate you for standing with us through the difficult time for our family. </p>
-                    <p> We indeed saw an outpour of love through people's kind giving, prayers and many visits. We derive comfort and strength from all your uplifting words. </p>
-                    <p> Thank you for thinking of our family, and may God richly bless you </p>
-                </div>
-            </div>
-            <div class="col-md-2"></div>
-            <div class="col-2 col-md-2" :class="$q.screen.lt.md ? 'hidden': ''"></div>
         </div>
 
-        <div class="row q-gutter-lg">
-            <div class="col-sm-2" :class="$q.screen.lt.md ? 'hidden': ''"></div>
+        <!-- Mid-Screen -->
+        <div class="bgImage q-mt-lg text-h6 flex justify-center">
+            <div class="col-md-6">
+                <div class="q-py-xl q-pa-lg">
+                    <!-- <p>We would like to sincerely appreciate you for standing with us through the difficult time for our family. </p>
+                    <p> We indeed saw an outpour of love through people's kind giving, prayers and many visits. We derive comfort and strength from all your uplifting words. </p>
+                    <p> Thank you for thinking of our family, and may God richly bless you </p> -->
+                    <div v-html="about_section.center_text"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tribute Section -->
+        <div class="row flex justify-center">
             <div class="col-12 col-md-6">
                 <!-- Tributes Section -->
-                <div class="q-pt-xl q-pb-md">
-                    <div class="row q-mb-lg">
+                <div class="q-pt-xl q-pb-md ">
+                    <div class="row q-mb-lg" style="margin-bottom: 40px;">
                         <div class="col-6">
                             <div class="text-h4 text-bold"> Tributes </div>
                         </div>
@@ -83,11 +82,17 @@
                             <q-btn outline color="black" icon="edit_note" icon-left="send" label="Leave a Tribute" @click="scrollToBottom('writeTribute')" />
                         </div>
                     </div>
-                    <div v-for="tribute in tributes" :key="tribute.name">
-                        <TributeCard :username="tribute.name" :date="tribute.date" :comment="tribute.comment" />
+                    <div v-if="tributes.length">
+
+                        <div v-for="tribute in tributes" :key="tribute.name">
+                            <TributeCard :username="tribute.name" :date="tribute.date" :comment="tribute.comment" />
+                        </div>
+                    </div>
+                    <div v-else v-for="index in 4" :key="index">
+                        <SkeletonCard />
                     </div>
                 </div>
-                <div class="q-my-md q-pa-md" id="writeTribute">
+                <div class="q-my-md " :class="$q.screen.gt.sm ? 'q-pa-md' : ''" id="writeTribute">
                     <div class="text-h5 q-pb-md">
                         Write a Tribute
                     </div>
@@ -96,6 +101,91 @@
                             v-model="editor"
                             :definitions="{
                                 bold: {label: 'Bold', icon: null, tip: 'My bold tooltip'}
+                            }"
+                            :toolbar="[
+                                [
+                                {
+                                    label: $q.lang.editor.align,
+                                    icon: $q.iconSet.editor.align,
+                                    fixedLabel: true,
+                                    list: 'only-icons',
+                                    options: ['left', 'center', 'right', 'justify']
+                                },
+                                {
+                                    label: $q.lang.editor.align,
+                                    icon: $q.iconSet.editor.align,
+                                    fixedLabel: true,
+                                    options: ['left', 'center', 'right', 'justify']
+                                }
+                                ],
+                                ['bold', 'italic', 'strike', 'underline', 'subscript', 'superscript'],
+                                ['token', 'hr', 'link', 'custom_btn'],
+                                ['print', 'fullscreen'],
+                                [
+                                {
+                                    label: $q.lang.editor.formatting,
+                                    icon: $q.iconSet.editor.formatting,
+                                    list: 'no-icons',
+                                    options: [
+                                    'p',
+                                    'h1',
+                                    'h2',
+                                    'h3',
+                                    'h4',
+                                    'h5',
+                                    'h6',
+                                    'code'
+                                    ]
+                                },
+                                {
+                                    label: $q.lang.editor.fontSize,
+                                    icon: $q.iconSet.editor.fontSize,
+                                    fixedLabel: true,
+                                    fixedIcon: true,
+                                    list: 'no-icons',
+                                    options: [
+                                    'size-1',
+                                    'size-2',
+                                    'size-3',
+                                    'size-4',
+                                    'size-5',
+                                    'size-6',
+                                    'size-7'
+                                    ]
+                                },
+                                {
+                                    label: $q.lang.editor.defaultFont,
+                                    icon: $q.iconSet.editor.font,
+                                    fixedIcon: true,
+                                    list: 'no-icons',
+                                    options: [
+                                    'default_font',
+                                    'arial',
+                                    'arial_black',
+                                    'comic_sans',
+                                    'courier_new',
+                                    'impact',
+                                    'lucida_grande',
+                                    'times_new_roman',
+                                    'verdana'
+                                    ]
+                                },
+                                'removeFormat'
+                                ],
+                                ['quote', 'unordered', 'ordered', 'outdent', 'indent'],
+
+                                ['undo', 'redo'],
+                                ['viewsource']
+                            ]"
+                            :fonts="{
+                                arial: 'Arial',
+                                arial_black: 'Arial Black',
+                                comic_sans: 'Comic Sans MS',
+                                courier_new: 'Courier New',
+                                impact: 'Impact',
+                                lucida_grande: 'Lucida Grande',
+                                times_new_roman: 'Times New Roman',
+                                verdana: 'Verdana'
                             }"
                         />
                     </div>
@@ -106,9 +196,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- <div class="col-12 col-md-2"></div> -->
-            <div class="col-2 col-md-2" :class="$q.screen.lt.md ? 'hidden': ''"></div>
         </div>
     </div>
 </template>
@@ -122,22 +209,30 @@
         background-size: cover;
         background-attachment: fixed;
         font-family: 'cursive';
-
     }
 </style>
 
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
+import db from 'src/boot/firebase'
+import {   collection, query,orderBy, onSnapshot } from "firebase/firestore";
+
 import { scroll } from 'quasar'
 const { getScrollTarget, setVerticalScrollPosition } = scroll
 import TributeCard from 'components/tribute_card.vue'
 import Carousel from 'components/sidebar/carousel.vue'
+import SkeletonCard from 'components/card_skeleton.vue'
+import TextSkeleton from 'components/text_skeleton.vue'
+// import EditorComponent from 'components/editor.vue'
 
 export default defineComponent({
   name: 'AboutSection',
   components: {
     TributeCard,
-    Carousel
+    Carousel,
+    SkeletonCard,
+    TextSkeleton,
+    // EditorComponent,
   },
   methods: {
     scrollToBottom (el) {
@@ -147,23 +242,40 @@ export default defineComponent({
         const offset = el.offsetTop + el.offsetParent.offsetTop // adjust the scrolling
         const duration = 100
         setScrollPosition(target, offset, duration)
-    }
+    },
+    loadTributesFromFirebase() {
+        const _ = this;
+        const q = query(collection(db, "tribute_section"), orderBy("date", "desc"));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            _.tributes = []
+            querySnapshot.forEach((doc) => {
+                _.tributes.push({ 
+                    name: doc.data().name, 
+                    date: doc.data().date, 
+                    comment: doc.data().content 
+                });
+            });
+        });
+    },
+    loadAboutFromFirebase() {
+        const _ = this;
+        const q = collection(db, "about_section");
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+                _.about_section = doc.data()
+            });
+        });
+    },
+  },
+
+  mounted() {
+    this.loadTributesFromFirebase();
+    this.loadAboutFromFirebase();
   },
   setup() {
     return {
-        tributes: [
-            { name: "Ikwegbu George", date: new Date(), comment: "O death, where is your sting? Our beloved mother and closest friend taught us what true love means in words and actions and touched lives everywhere you went with your compassionate and kind heart.Who will I talk to daily and speak about all my joys and worries? Who will give me those sound nuggets of advice and wisdom that always calms and reassures me? You were selfless, you were caring, hardworking, and God-fearing. Life won't be the same..." },
-            { name: "Ikwegbu George", date: new Date(), comment: "O death, where is your sting? Our beloved mother and closest friend taught us what true love means in words and actions and touched lives everywhere you went with your compassionate and kind heart.Who will I talk to daily and speak about all my joys and worries? Who will give me those sound nuggets of advice and wisdom that always calms and reassures me? You were selfless, you were caring, hardworking, and God-fearing. Life won't be the same..." },
-            { name: "Ikwegbu George", date: new Date(), comment: "O death, where is your sting? Our beloved mother and closest friend taught us what true love means in words and actions and touched lives everywhere you went with your compassionate and kind heart.Who will I talk to daily and speak about all my joys and worries? Who will give me those sound nuggets of advice and wisdom that always calms and reassures me? You were selfless, you were caring, hardworking, and God-fearing. Life won't be the same..." },
-            { name: "Ikwegbu George", date: new Date(), comment: "O death, where is your sting? Our beloved mother and closest friend taught us what true love means in words and actions and touched lives everywhere you went with your compassionate and kind heart.Who will I talk to daily and speak about all my joys and worries? Who will give me those sound nuggets of advice and wisdom that always calms and reassures me? You were selfless, you were caring, hardworking, and God-fearing. Life won't be the same..." },
-            { name: "Ikwegbu George", date: new Date(), comment: "O death, where is your sting? Our beloved mother and closest friend taught us what true love means in words and actions and touched lives everywhere you went with your compassionate and kind heart.Who will I talk to daily and speak about all my joys and worries? Who will give me those sound nuggets of advice and wisdom that always calms and reassures me? You were selfless, you were caring, hardworking, and God-fearing. Life won't be the same..." },
-            { name: "Ikwegbu George", date: new Date(), comment: "O death, where is your sting? Our beloved mother and closest friend taught us what true love means in words and actions and touched lives everywhere you went with your compassionate and kind heart.Who will I talk to daily and speak about all my joys and worries? Who will give me those sound nuggets of advice and wisdom that always calms and reassures me? You were selfless, you were caring, hardworking, and God-fearing. Life won't be the same..." },
-            { name: "Ikwegbu George", date: new Date(), comment: "O death, where is your sting? Our beloved mother and closest friend taught us what true love means in words and actions and touched lives everywhere you went with your compassionate and kind heart.Who will I talk to daily and speak about all my joys and worries? Who will give me those sound nuggets of advice and wisdom that always calms and reassures me? You were selfless, you were caring, hardworking, and God-fearing. Life won't be the same..." },
-            { name: "Ikwegbu George", date: new Date(), comment: "O death, where is your sting? Our beloved mother and closest friend taught us what true love means in words and actions and touched lives everywhere you went with your compassionate and kind heart.Who will I talk to daily and speak about all my joys and worries? Who will give me those sound nuggets of advice and wisdom that always calms and reassures me? You were selfless, you were caring, hardworking, and God-fearing. Life won't be the same..." },
-            { name: "Ikwegbu George", date: new Date(), comment: "O death, where is your sting? Our beloved mother and closest friend taught us what true love means in words and actions and touched lives everywhere you went with your compassionate and kind heart.Who will I talk to daily and speak about all my joys and worries? Who will give me those sound nuggets of advice and wisdom that always calms and reassures me? You were selfless, you were caring, hardworking, and God-fearing. Life won't be the same..." },
-            { name: "Ikwegbu George", date: new Date(), comment: "O death, where is your sting? Our beloved mother and closest friend taught us what true love means in words and actions and touched lives everywhere you went with your compassionate and kind heart.Who will I talk to daily and speak about all my joys and worries? Who will give me those sound nuggets of advice and wisdom that always calms and reassures me? You were selfless, you were caring, hardworking, and God-fearing. Life won't be the same..." },
-            { name: "Ikwegbu George", date: new Date(), comment: "O death, where is your sting? Our beloved mother and closest friend taught us what true love means in words and actions and touched lives everywhere you went with your compassionate and kind heart.Who will I talk to daily and speak about all my joys and worries? Who will give me those sound nuggets of advice and wisdom that always calms and reassures me? You were selfless, you were caring, hardworking, and God-fearing. Life won't be the same..." },
-        ],
+        tributes: ref([]),
+        about_section: ref({}),
         editor: ""
     }
   }

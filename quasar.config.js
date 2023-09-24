@@ -32,6 +32,7 @@ module.exports = configure(function (/* ctx */) {
     boot: [
       'i18n',
       'axios',
+      'firebase',
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css
@@ -59,6 +60,16 @@ module.exports = configure(function (/* ctx */) {
         browser: [ 'es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1' ],
         node: 'node16'
       },
+      // chainWebpack (chain, { isServer, isClient }) {
+      //   chain.module.rule('eslint')
+      //     .test(/\.(js|vue)$/)
+      //     .enforce('pre')
+      //     .exclude
+      //       .add((/[\\/]node_modules[\\/]/))
+      //       .end()
+      //     .use('eslint-loader')
+      //       .loader('eslint-loader')
+      // },
 
       vueRouterMode: 'hash', // available values: 'hash', 'history'
       // vueRouterBase,

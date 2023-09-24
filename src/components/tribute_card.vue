@@ -8,9 +8,10 @@
         <div :class="hasIcon ? 'col-sm-10' : 'col-sm-11'">
         <!-- <div class="col-sm-10"> -->
             <div class="text-bold"> {{ username }} </div>
-            <div class="q-pb-sm"> {{ date ? date.toLocaleDateString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}) : ''  }} </div>
-            <!-- <div class="q-pb-sm"> {{ date.toDateString() }} </div> -->
-            <div class="q-pt-sm q-pb-lg " :class="showMore ? '': 'ellipsis-2-lines'" >
+            <!-- <div class="q-pb-sm"> {{ date ? date.toLocaleDateString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}) : ''  }} </div> -->
+            <!-- <div class="q-pb-sm"> {{ date }} </div> -->
+            <div class="q-pb-sm"> {{ date ? new Date(date.seconds * 1000).toLocaleDateString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}) : ''  }} </div>
+            <div class="q-pt-sm q-pb-lg q-pr-md" :class="showMore ? '': 'ellipsis-2-lines'" >
                 {{ comment }}
             </div>
             <div class="flex justify-between q-pb-md">
@@ -71,7 +72,7 @@ export default defineComponent({
         default: true
     },
     date: {
-      type: Date,
+    //   type: Date,
       default: ''
     },
 
