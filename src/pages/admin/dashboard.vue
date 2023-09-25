@@ -188,6 +188,7 @@ import {
     aboutText,
     centerText,
     programmeEvents,
+    galleryStorage,
     nameDoc,
     emailDoc,
     content,
@@ -394,6 +395,21 @@ export default defineComponent({
             _.addToDb('stories', _.stories)
         });
     },
+    loadImagesFromFirebase() {
+        const _ = this;
+        const q = query(collection(db, galleryStorage), orderBy("date", "desc"));
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            _.gallery = []
+            querySnapshot.forEach((doc) => {
+                _.gallery.push({ 
+                    name: doc.data().name, 
+                    date: doc.data().date, 
+                    comment: doc.data().content 
+                });
+            });
+            _.addToDb('images', _.gallery)
+        });
+    },
     addToDb(type, content) {
         const _ = this
         _.dbStore.addContentToDb(type, content)
@@ -408,6 +424,7 @@ export default defineComponent({
   mounted() {
     this.loadTributesFromFirebase();
     this.loadStoriesFromFirebase();
+    this.loadImagesFromFirebase();
   },
   setup() {
       const dbStore = useDbStore();
@@ -417,6 +434,7 @@ export default defineComponent({
         editor: "",
         tributes: ref([]),
         stories: ref([]),
+        gallery: ref([]),
         contentType: ref( 'Content Type'),
         contentTypeArr: ref(_contentType),
         selectedContentType: ref({}),
