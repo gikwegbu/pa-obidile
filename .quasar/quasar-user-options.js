@@ -13,9 +13,9 @@
 
 
 
-import {AddressbarColor,Dialog} from 'quasar'
+import {AddressbarColor,Dialog,Notify} from 'quasar'
 
 
 
-export default { config: {},plugins: {AddressbarColor,Dialog} }
+export default { config: {},plugins: {AddressbarColor,Dialog,Notify} }
 

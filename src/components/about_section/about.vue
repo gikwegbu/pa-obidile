@@ -190,7 +190,7 @@
                         />
                     </div>
                     <div class="flex justify-end q-mt-md">
-                        <q-btn glossy color="teal" :class="$q.screen.lt.sm ? 'full-width' : ''">
+                        <q-btn glossy color="teal" :class="$q.screen.lt.sm ? 'full-width' : ''" :loading="isPublishing" @click="publishTribute()">
                             Publish
                         </q-btn>
                     </div>
@@ -215,14 +215,15 @@
 <script>
 import { defineComponent, ref } from 'vue'
 import db from 'src/boot/firebase'
-import {   collection, query,orderBy, onSnapshot } from "firebase/firestore";
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
 
-import { scroll } from 'quasar'
+import { scroll, Notify } from 'quasar'
 const { getScrollTarget, setVerticalScrollPosition } = scroll
 import TributeCard from 'components/tribute_card.vue'
 import Carousel from 'components/sidebar/carousel.vue'
 import SkeletonCard from 'components/card_skeleton.vue'
 import TextSkeleton from 'components/text_skeleton.vue'
+import { tributeSection, aboutSection } from 'src/pages/admin/constants'
 // import EditorComponent from 'components/editor.vue'
 
 export default defineComponent({
@@ -245,7 +246,7 @@ export default defineComponent({
     },
     loadTributesFromFirebase() {
         const _ = this;
-        const q = query(collection(db, "tribute_section"), orderBy("date", "desc"));
+        const q = query(collection(db, tributeSection), orderBy("date", "desc"));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             _.tributes = []
             querySnapshot.forEach((doc) => {
@@ -259,13 +260,34 @@ export default defineComponent({
     },
     loadAboutFromFirebase() {
         const _ = this;
-        const q = collection(db, "about_section");
+        const q = collection(db, aboutSection);
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             querySnapshot.forEach((doc) => {
                 _.about_section = doc.data()
             });
         });
     },
+    async publishTribute() {
+        const _  = this
+        // Sha check if user is signup, and can uplish, get their name and do the mbunu
+        var data = { 
+            content: _.editor,
+            date: serverTimestamp(),
+            // name: _.dbStore.getAdminDetails.name ?? _.dbStore.getUserDetails.name 
+            name: ''
+        };
+        _.isPublishing = true;
+        const docRef = await addDoc(collection(db, tributeSection), data);
+        _.isPublishing = false;
+        _.editor = ''
+        _.notify("Tribute published successfully", 'green')
+    },
+    notify(message, color) {
+        Notify.create({
+            message: message,
+            color: color
+        })
+    }
   },
 
   mounted() {
@@ -276,7 +298,8 @@ export default defineComponent({
     return {
         tributes: ref([]),
         about_section: ref({}),
-        editor: ""
+        editor: "",
+        isPublishing: ref(false)
     }
   }
 })

@@ -10,13 +10,20 @@
                         <q-btn outline color="black" icon="edit_note" icon-left="send" label="Write a Story" @click="scrollToBottom('writeTribute')" />
                     </div>
                 </div>
-                <div v-for="tribute in tributes" :key="tribute.name" class="q-pl-lg q-pr-md">
-                    <TributeCard 
-                        username="June 3 . by Mathew James" 
-                        date="" 
-                        :comment="tribute.comment" 
-                        :hasIcon="false"
-                    />
+                <div v-if="stories.length">
+                    <div v-for="tribute in stories" :key="tribute.name" class="q-pl-lg q-pr-md">
+                            <!-- :username="'June 3 . by '+tribute.name"  -->
+                            <!-- :username="new Date(tribute.date.seconds * 1000).toLocaleDateString('en-us', { weekday:'long', year:'numeric', month:'short', day:'numeric'})+' . by '+tribute.name"  -->
+                        <TributeCard 
+                            :username="new Date(tribute.date.seconds * 1000).toLocaleDateString('en-us', { month:'short', day:'numeric'}) + ' . by ' + tribute.name" 
+                            date="" 
+                            :comment="tribute.comment" 
+                            :hasIcon="false"
+                        />
+                    </div>
+                </div>
+                <div v-else v-for="index in 4" :key="index">
+                    <SkeletonCard />
                 </div>
             </div>
             <div class="q-my-md q-pa-md" id="writeTribute">
@@ -117,7 +124,7 @@
                         />
                 </div>
                 <div class="flex justify-end q-mt-md">
-                    <q-btn glossy color="teal" :class="$q.screen.lt.sm ? 'full-width' : ''">
+                    <q-btn glossy color="teal" :class="$q.screen.lt.sm ? 'full-width' : ''" :loading="isPublishing" @click="publishStory()">
                         Publish
                     </q-btn>
                 </div>
@@ -135,8 +142,9 @@ import { defineComponent, ref } from 'vue'
 import TributeCard from 'components/tribute_card.vue'
 import Carousel from 'components/sidebar/carousel.vue'
 import db from 'src/boot/firebase'
-import {   collection, onSnapshot } from "firebase/firestore";
-
+import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
+import { storiesSection } from 'src/pages/admin/constants';
+import {  Notify } from 'quasar'
 export default defineComponent({
   name: 'StoriesSection',
   components: {
@@ -146,11 +154,11 @@ export default defineComponent({
   methods: {
     loadLifeFromFirebase() {
         const _ = this;
-        const q = collection(db, "stories_section");
+        const q = query(collection(db, storiesSection), orderBy("date", "desc"));
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            _.tributes = []
+            _.stories = []
             querySnapshot.forEach((doc) => {
-                _.tributes.push({ 
+                _.stories.push({ 
                     name: doc.data().name, 
                     date: doc.data().date, 
                     comment: doc.data().content 
@@ -158,14 +166,36 @@ export default defineComponent({
             });
         });
     },
+    async publishStory() {
+        const _  = this
+        // Sha check if user is signup, and can uplish, get their name and do the mbunu
+        var data = { 
+            content: _.editor,
+            date: serverTimestamp(),
+            // name: _.dbStore.getAdminDetails.name ?? _.dbStore.getUserDetails.name 
+            name: ''
+        };
+        _.isPublishing = true;
+        const docRef = await addDoc(collection(db, storiesSection), data);
+        _.isPublishing = false;
+        _.editor = ''
+        _.notify("Tribute published successfully", 'green')
+    },
+    notify(message, color) {
+        Notify.create({
+            message: message,
+            color: color
+        })
+    }
   },
   mounted() {
     this.loadLifeFromFirebase();
   },
   setup() {
     return {
-        tributes: ref([]),
-        editor: ""
+        stories: ref([]),
+        editor: "",
+        isPublishing: ref(false)
     }
   }
 })

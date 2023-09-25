@@ -38,13 +38,9 @@
         </q-tab-panel>
 
         <q-tab-panel name="gallery">
-          <div class="flex justify-end q-mb-lg">
-            <q-btn glossy color="secondary" icon="add" label="Add"></q-btn>
-          </div>
+          
           <GallerySection />
-          <div class="flex justify-center q-mt-lg">
-            <q-btn glossy color="secondary" icon="add" label="Add" class=""></q-btn>
-          </div>
+         
         </q-tab-panel>
         <q-tab-panel name="stories">
           <StoriesSection />

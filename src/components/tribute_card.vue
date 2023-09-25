@@ -12,7 +12,8 @@
             <!-- <div class="q-pb-sm"> {{ date }} </div> -->
             <div class="q-pb-sm"> {{ date ? new Date(date.seconds * 1000).toLocaleDateString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}) : ''  }} </div>
             <div class="q-pt-sm q-pb-lg q-pr-md" :class="showMore ? '': 'ellipsis-2-lines'" >
-                {{ comment }}
+                <!-- {{ comment }} -->
+                <span v-html="comment"></span>
             </div>
             <div class="flex justify-between q-pb-md">
                 <q-btn flat class="text-weight-regular text-lowercase" icon="share" label="Share">
