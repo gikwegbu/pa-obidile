@@ -30,10 +30,12 @@
   <script>
   import { defineComponent, ref } from 'vue'
   import { useQuasar, Notify } from 'quasar'
-import ImageUploader from 'components/image_uploader.vue'
+  import { useDbStore } from 'stores/db'
+  import ImageUploader from 'components/image_uploader.vue'
   import db from 'src/boot/firebase'
   import { collection, query,orderBy, onSnapshot } from "firebase/firestore";
   import {  galleryStorage } from 'pages/admin/constants'
+  import GoogleAuthDialog from 'components/google_auth_dialog.vue'
   
   export default defineComponent({
   name: 'ImageCarousel',
@@ -70,19 +72,41 @@ import ImageUploader from 'components/image_uploader.vue'
   },
   setup () {
     const $q = useQuasar()
+    const dbStore = useDbStore();
 
     return {
+      dbStore,
       gallery: ref([]),
       slide: ref(0),
       addPicture() {
         const _ = this
+        if(!_.dbStore.checkUserLoggedIn()) {
+            // User is not logged in so pop up the notification...
+            _.userAuthModal()
+            return
+        }
         $q.dialog({
-              component: ImageUploader,
+            component: ImageUploader,
 
+            // props forwarded to your custom component
+            componentProps: {
+                imageType: galleryStorage,
+                // ...more..props...
+            }
+            }).onOk(() => {
+            console.log('OK')
+            }).onCancel(() => {
+            console.log('Cancel')
+            }).onDismiss(() => {
+            console.log('Called on OK or Cancel')
+        })
+      },
+      userAuthModal() {
+          $q.dialog({
+              component: GoogleAuthDialog,
+  
               // props forwarded to your custom component
               componentProps: {
-                  imageType: galleryStorage,
-                  // ...more..props...
               }
               }).onOk(() => {
               console.log('OK')
@@ -91,7 +115,7 @@ import ImageUploader from 'components/image_uploader.vue'
               }).onDismiss(() => {
               console.log('Called on OK or Cancel')
           })
-      },
+        },
     }
   }
 })

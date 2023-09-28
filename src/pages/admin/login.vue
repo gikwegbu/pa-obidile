@@ -70,7 +70,6 @@ export default defineComponent({
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {
-            _.notify("Login Successfully", 'green');
             // console.log("Document data:", docSnap.data());
             // Admin Token
             const adminToken = docSnap.data().uid
@@ -78,12 +77,12 @@ export default defineComponent({
             const adminEmail = docSnap.data().email
             _.dbStore.loginAdmin(adminName, adminEmail, adminToken)
             _.isSigningIn = false;
-
             //
             // Move to dashboard
             _.$router.push({
                 name: "Dashboard"
             })
+            _.notify("Login Successfully", 'green');
         } else {
             // docSnap.data() will be undefined in this case
             _.notify("Oops!! You no longer have Admin Access 😔", 'red');

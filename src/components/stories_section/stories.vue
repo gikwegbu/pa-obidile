@@ -7,7 +7,9 @@
                         <div class="text-h6 text-bold"> Share a special moment from Obidile's life.</div>
                     </div>
                     <div class="col-12 col-sm-6 flex justify-end">
-                        <q-btn outline color="black" icon="edit_note" icon-left="send" label="Write a Story" @click="scrollToBottom('writeTribute')" />
+                        <!-- <q-btn outline color="black" icon="edit_note" icon-left="send" label="Write a Story" @click="scrollToBottom('writeTribute')" /> -->
+                        <!-- <q-btn outline color="black" icon="edit_note" icon-left="send" label="Write a Story" @click="userAuthModal()" /> -->
+                        <q-btn outline color="black" icon="edit_note" icon-left="send" label="Write a Story" />
                     </div>
                 </div>
                 <div v-if="stories.length">
@@ -32,7 +34,7 @@
                 </div>
                 <div>
                     <q-editor
-                            v-model="editor"
+                            v-model.trim="editor"
                             :definitions="{
                                 bold: {label: 'Bold', icon: null, tip: 'My bold tooltip'}
                             }"
@@ -142,9 +144,12 @@ import { defineComponent, ref } from 'vue'
 import TributeCard from 'components/tribute_card.vue'
 import Carousel from 'components/sidebar/carousel.vue'
 import db from 'src/boot/firebase'
+import { useDbStore } from 'stores/db'
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
 import { storiesSection } from 'src/pages/admin/constants';
-import {  Notify } from 'quasar'
+import {  Notify, useQuasar } from 'quasar'
+import GoogleAuthDialog from 'components/google_auth_dialog.vue'
+
 export default defineComponent({
   name: 'StoriesSection',
   components: {
@@ -168,12 +173,23 @@ export default defineComponent({
     },
     async publishStory() {
         const _  = this
+        // Check if user is logged in
+        if(!_.dbStore.checkUserLoggedIn()) {
+            // User is not logged in so pop up the notification...
+            _.userAuthModal()
+            return
+        }
+        if(!_.editor.length) {
+            _.notify("Please write soemthing", 'red');
+            return
+        }
         // Sha check if user is signup, and can uplish, get their name and do the mbunu
         var data = { 
             content: _.editor,
             date: serverTimestamp(),
             // name: _.dbStore.getAdminDetails.name ?? _.dbStore.getUserDetails.name 
-            name: ''
+            name: _.dbStore.getSenderName 
+            // name: ''
         };
         _.isPublishing = true;
         const docRef = await addDoc(collection(db, storiesSection), data);
@@ -192,10 +208,29 @@ export default defineComponent({
     this.loadLifeFromFirebase();
   },
   setup() {
+    const $q = useQuasar()
+    const dbStore = useDbStore();
+
     return {
+        dbStore,
         stories: ref([]),
         editor: "",
-        isPublishing: ref(false)
+        isPublishing: ref(false),
+        userAuthModal() {
+            $q.dialog({
+                component: GoogleAuthDialog,
+    
+                // props forwarded to your custom component
+                componentProps: {
+                }
+                }).onOk(() => {
+                console.log('OK')
+                }).onCancel(() => {
+                console.log('Cancel')
+                }).onDismiss(() => {
+                console.log('Called on OK or Cancel')
+            })
+        },
     }
   }
 })

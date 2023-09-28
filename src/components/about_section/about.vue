@@ -79,7 +79,9 @@
                             <div class="text-h4 text-bold"> Tributes </div>
                         </div>
                         <div class="col-6 flex justify-end">
-                            <q-btn outline color="black" icon="edit_note" icon-left="send" label="Leave a Tribute" @click="scrollToBottom('writeTribute')" />
+                            <!-- <q-btn outline color="black" icon="edit_note" icon-left="send" label="Leave a Tribute" @click="scrollToBottom('writeTribute')" /> -->
+                            <!-- <q-btn outline color="black" icon="edit_note" icon-left="send" label="Leave a Tribute" @click="userAuthModal()" /> -->
+                            <q-btn outline color="black" icon="edit_note" icon-left="send" label="Leave a Tribute" />
                         </div>
                     </div>
                     <div v-if="tributes.length">
@@ -98,7 +100,7 @@
                     </div>
                     <div>
                         <q-editor
-                            v-model="editor"
+                            v-model.trim="editor"
                             :definitions="{
                                 bold: {label: 'Bold', icon: null, tip: 'My bold tooltip'}
                             }"
@@ -214,17 +216,19 @@
 
 <script>
 import { defineComponent, ref } from 'vue'
-import db from 'src/boot/firebase'
+import { db } from 'src/boot/firebase'
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from "firebase/firestore";
-
-import { scroll, Notify } from 'quasar'
+import { useDbStore } from 'stores/db'
+import { scroll, Notify, useQuasar } from 'quasar'
 const { getScrollTarget, setVerticalScrollPosition } = scroll
 import TributeCard from 'components/tribute_card.vue'
 import Carousel from 'components/sidebar/carousel.vue'
 import SkeletonCard from 'components/card_skeleton.vue'
 import TextSkeleton from 'components/text_skeleton.vue'
 import { tributeSection, aboutSection } from 'src/pages/admin/constants'
+import GoogleAuthDialog from 'components/google_auth_dialog.vue'
 // import EditorComponent from 'components/editor.vue'
+
 
 export default defineComponent({
   name: 'AboutSection',
@@ -250,7 +254,9 @@ export default defineComponent({
         const unsubscribe = onSnapshot(q, (querySnapshot) => {
             _.tributes = []
             querySnapshot.forEach((doc) => {
+                console.log("this is the doc:: ",doc.id, doc.data())
                 _.tributes.push({ 
+                    id: doc.id,
                     name: doc.data().name, 
                     date: doc.data().date, 
                     comment: doc.data().content 
@@ -269,12 +275,23 @@ export default defineComponent({
     },
     async publishTribute() {
         const _  = this
+        // Check if user is logged in
+        if(!_.dbStore.checkUserLoggedIn()) {
+            // User is not logged in so pop up the notification...
+            _.userAuthModal()
+            return
+        }
+        if(!_.editor.length) {
+            _.notify("Please write soemthing", 'red');
+            return
+        }
         // Sha check if user is signup, and can uplish, get their name and do the mbunu
         var data = { 
             content: _.editor,
             date: serverTimestamp(),
             // name: _.dbStore.getAdminDetails.name ?? _.dbStore.getUserDetails.name 
-            name: ''
+            name: _.dbStore.getSenderName 
+            // name: ''
         };
         _.isPublishing = true;
         const docRef = await addDoc(collection(db, tributeSection), data);
@@ -282,6 +299,7 @@ export default defineComponent({
         _.editor = ''
         _.notify("Tribute published successfully", 'green')
     },
+
     notify(message, color) {
         Notify.create({
             message: message,
@@ -293,13 +311,33 @@ export default defineComponent({
   mounted() {
     this.loadTributesFromFirebase();
     this.loadAboutFromFirebase();
+    // this.userAuthModal();
   },
   setup() {
+    const $q = useQuasar()
+    const dbStore = useDbStore();
+
     return {
+        dbStore,
         tributes: ref([]),
         about_section: ref({}),
         editor: "",
-        isPublishing: ref(false)
+        isPublishing: ref(false),
+        userAuthModal() {
+            $q.dialog({
+                component: GoogleAuthDialog,
+    
+                // props forwarded to your custom component
+                componentProps: {
+                }
+                }).onOk(() => {
+                console.log('OK')
+                }).onCancel(() => {
+                console.log('Cancel')
+                }).onDismiss(() => {
+                console.log('Called on OK or Cancel')
+            })
+        },
     }
   }
 })

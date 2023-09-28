@@ -22,11 +22,8 @@
                 <!-- {{ props.row.date }} -->
                 {{ props.row.date ? new Date(props.row.date.seconds * 1000).toLocaleDateString('en-us', { weekday:"long", year:"numeric", month:"short", day:"numeric"}) : ''  }}
             </q-td>
-            <q-td key="action" :props="props"  @click="onRowClick(props.row)">
-              <!-- <q-badge color="orange">
-                {{ props.row.action }}
-              </q-badge> -->
-              <q-btn color="red" flat icon="delete" ></q-btn>
+            <q-td key="action" :props="props"  @click="deleteArticle(props.row.id, props.row.name)">
+              <q-btn round color="red" flat icon="delete" ></q-btn>
             </q-td>
           </q-tr>
         </template>
@@ -35,6 +32,14 @@
   </template>
   
   <script>
+  import { defineComponent, ref } from 'vue'
+  import { doc, deleteDoc } from "firebase/firestore";
+  import { Notify, useQuasar } from 'quasar'
+import db from 'src/boot/firebase'
+import { tributeSection } from 'src/pages/admin/constants';
+import { useDbStore } from 'stores/db'
+
+
   const columns = [
     {
       name: 'name',
@@ -56,10 +61,11 @@
       name: 'Frozen Yogurt',
       comment: 159,
       date: 6.0,
+      id: ''
     },
   ]
   
-  export default {
+  export default defineComponent({
     name: "TableComponent",
     props: {
       rows: {
@@ -67,15 +73,43 @@
       },
       tableTitle: {
         defailt: ''
+      },
+      section: {
+        defailt: ''
+      }
+    },
+    methods: {
+      notify(message, color) {
+        Notify.create({
+            message: message,
+            color: color
+        })
       }
     },
     setup () {
+      const $q = useQuasar()
+      const dbStore = useDbStore();
+
       return {
-        onRowClick: (row) => alert(`${row.name} clicked`),
+        dbStore,
         columns,
+        onRowClick: (row) => alert(`${row.id} clicked`),
+        deleteArticle(id, name) {
+          const _ = this
+          $q.dialog({
+            title: 'Confirm',
+            message: `Are you sure you want to delete this ${_.tableTitle}, by ${name}?`,
+            cancel: true,
+            persistent: true
+          }).onOk(async () => {
+            await deleteDoc(doc(db, _.section, id));
+            _.dbStore.deleteContentFromDb(_.section == tributeSection ? 'tribute' : 'stories' , id)
+            _.notify(`${_.tableTitle} Deleted successfully`, 'green')
+          })
+        },
         // rows
       }
     }
-  }
+  })
   </script>
   

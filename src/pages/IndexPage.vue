@@ -25,6 +25,8 @@
         <q-tab class="text-white" name="life" label="Life" />
         <q-tab class="text-white" name="gallery" label="Gallery" />
         <q-tab class="text-white" name="stories" label="Stories" />
+        <!--  -->
+        <q-btn v-if="dbStore.checkUserLoggedIn()" class="text-white" color="red" label="Logout" :loading="isLoggingOut" @click="signOut()" />
       </q-tabs>
     </div>
 
@@ -75,6 +77,9 @@ import {  storage } from 'src/boot/firebase';
 import {   collection, onSnapshot } from "firebase/firestore";
 import { getStorage,  listAll } from "firebase/storage";
 import { ref as _ref } from "firebase/storage";
+import { getAuth, signOut } from "firebase/auth";
+import { useDbStore } from 'stores/db'
+
 
 export default defineComponent({
   name: 'IndexPage',
@@ -122,6 +127,20 @@ export default defineComponent({
       //   }).catch((error) => {
       //     // Uh-oh, an error occurred!
       //   });
+    },
+
+    signOut() {
+      const _ = this
+      const auth = getAuth();
+      _.isLoggingOut = true
+      signOut(auth).then(() => {
+        // Sign-out successful.
+        _.dbStore.logoutUser()
+      }).catch((error) => {
+        // An error happened.
+      }).finally(() => {
+        _.isLoggingOut = false;
+      });
     }
   },
   mounted() {
@@ -132,9 +151,13 @@ export default defineComponent({
   },
 
   setup() {
+    const dbStore = useDbStore();
+
     return {
+      dbStore,
       tab: ref('about'),
-      landing_page: ref({})
+      landing_page: ref({}),
+      isLoggingOut: ref(false)
     }
   }
 })

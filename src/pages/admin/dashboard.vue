@@ -50,7 +50,7 @@
         <div class="full-width" v-if="isManageContent">
             <div>
                 <q-editor
-                    v-model="editor"
+                    v-model.trim="editor"
                     :definitions="{
                         bold: {label: 'Bold', icon: null, tip: 'My bold tooltip'}
                     }"
@@ -148,7 +148,7 @@
             </div>
         </div>
         <div v-else>
-            <TableComponent :rows="tableData" :tableTitle="contentType" />
+            <TableComponent :rows="tableData" :tableTitle="contentType" :section="selectedContentType.section" />
         </div>
 
         <!-- This is for Gallery Sectino -->
@@ -267,6 +267,10 @@ export default defineComponent({
             _.notify("Please choose content type from drop down", 'red');
             return
         }
+        if(!_.editor.length) {
+            _.notify("Please write soemthing", 'red');
+            return
+        }
         // Get the type of content
         let contentType = _.selectedContentType
         console.log("This is the contentType::: ", contentType)
@@ -372,6 +376,7 @@ export default defineComponent({
             _.tributes = []
             querySnapshot.forEach((doc) => {
                 _.tributes.push({ 
+                    id: doc.id,
                     name: doc.data().name, 
                     date: doc.data().date, 
                     comment: doc.data().content 
@@ -387,6 +392,7 @@ export default defineComponent({
             _.stories = []
             querySnapshot.forEach((doc) => {
                 _.stories.push({ 
+                    id: doc.id,
                     name: doc.data().name, 
                     date: doc.data().date, 
                     comment: doc.data().content 
@@ -402,6 +408,7 @@ export default defineComponent({
             _.gallery = []
             querySnapshot.forEach((doc) => {
                 _.gallery.push({ 
+                    id: doc.id,
                     name: doc.data().name, 
                     date: doc.data().date, 
                     comment: doc.data().content 

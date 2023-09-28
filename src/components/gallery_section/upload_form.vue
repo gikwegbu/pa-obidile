@@ -134,8 +134,9 @@ export default defineComponent({
                             [galleryStorage]: url,
                             date: serverTimestamp(),
                             title: _.title,
-                            // name:  _.dbStore.getAdminDetails.name ?? _.dbStore.getUserDetails.name
-                            name: "",
+                            // name:  _.dbStore.getAdminDetails.name ?? _.dbStore.getUserDetails.name,
+                            name: _.dbStore.getSenderName,
+                            // name: "",
                             ref: path,
                         };
                         const docRef = await addDoc(collection(db, galleryStorage), data);

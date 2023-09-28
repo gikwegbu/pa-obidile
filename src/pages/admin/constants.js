@@ -19,6 +19,7 @@ const life = 'life'
 
 
 
+
 export {
     aboutSection,
     landingPage,
