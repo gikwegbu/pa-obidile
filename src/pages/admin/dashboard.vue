@@ -289,12 +289,12 @@ export default defineComponent({
         });
         
         setTimeout(async () => {
-            var docRef = ''
+            // var docRef = ''
             var data = {}
             switch (contentType.val) {
                 case aboutText:
                     // Means its the aboutSection
-                     docRef = doc(db, contentType.section, _.results[0]['id']);
+                    var docRef = doc(db, contentType.section, _.results[0]['id']);
                      data = { 
                         [contentType.val]: _.editor
                     };
@@ -302,7 +302,8 @@ export default defineComponent({
                     break;
                 case programmeEvents:
                     // Means its the aboutSection also...
-                    docRef = doc(db, contentType.section, _.results[0]['id']);
+                    var docRef = doc(db, contentType.section, _.results[0]['id']);
+                    console.log("George this is the program section: ", docRef)
                     data = { 
                         [contentType.val]: _.editor
                     };
@@ -310,7 +311,7 @@ export default defineComponent({
                     break;
                 case centerText:
                     // Means its the aboutSection also...
-                    docRef = doc(db, contentType.section, _.results[0]['id']);
+                    var docRef = doc(db, contentType.section, _.results[0]['id']);
                     data = { 
                         [contentType.val]: _.editor
                     };
@@ -335,7 +336,8 @@ export default defineComponent({
                         name: _.dbStore.getAdminDetails.name
                     };
                     _.isPublishing = true;
-                    const docRef = await addDoc(collection(db, contentType.section), data);
+                    // const docRef = await addDoc(collection(db, contentType.section), data);
+                    await addDoc(collection(db, contentType.section), data);
                     _.isPublishing = false;
                     _.editor = ''
                     _.notify(`${_.contentType}'s Content Has been updated successfully`, 'green')
