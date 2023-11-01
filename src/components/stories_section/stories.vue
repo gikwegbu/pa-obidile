@@ -1,15 +1,11 @@
 <template>
     <div class="row q-gutter-lg flex justify-center">
         <div class="col-12 col-md-6">
-            <div class="q-pb-md">
+            <div class="q-pb-sm">
                 <div class="row q-mb-lg q-px-md" style="margin-bottom: 40px;">
-                    <div class="col-12 col-sm-6">
+                    <div class="">
                         <div class="text-h6 text-bold"> Share a special moment from Obidile's life.</div>
-                    </div>
-                    <div class="col-12 col-sm-6 flex justify-end">
-                        <!-- <q-btn outline color="black" icon="edit_note" icon-left="send" label="Write a Story" @click="scrollToBottom('writeTribute')" /> -->
-                        <!-- <q-btn outline color="black" icon="edit_note" icon-left="send" label="Write a Story" @click="userAuthModal()" /> -->
-                        <q-btn outline color="black" icon="edit_note" icon-left="send" label="Write a Story" />
+                        <span> Scroll down to write a story </span>
                     </div>
                 </div>
                 <div v-if="stories.length">

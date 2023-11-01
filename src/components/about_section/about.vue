@@ -75,13 +75,9 @@
                 <!-- Tributes Section -->
                 <div class="q-pt-xl q-pb-md ">
                     <div class="row q-mb-lg" style="margin-bottom: 40px;">
-                        <div class="col-6">
+                        <div >
                             <div class="text-h4 text-bold"> Tributes </div>
-                        </div>
-                        <div class="col-6 flex justify-end">
-                            <!-- <q-btn outline color="black" icon="edit_note" icon-left="send" label="Leave a Tribute" @click="scrollToBottom('writeTribute')" /> -->
-                            <!-- <q-btn outline color="black" icon="edit_note" icon-left="send" label="Leave a Tribute" @click="userAuthModal()" /> -->
-                            <q-btn outline color="black" icon="edit_note" icon-left="send" label="Leave a Tribute" />
+                            <span> Scroll down to leave a tribute </span>
                         </div>
                     </div>
                     <div v-if="tributes.length">
